@@ -1,0 +1,493 @@
+pip install django
+pip install django-restframework
+django-admin startproject djangoapi
+cd djangoapi
+python manage.py createsuperuser
+python manage.py runserver # for a quick check
+127.0.0.1:8000/admin
+
+django-admin startapp myapi
+
+in .djangoapi/settings.py, modify INSTALLED_APPS
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'myapi',
+]
+
+create copy of urls.py in myapi folder as well
+cp ./djangoapi/urls.py ./myapi/
+
+in urls.py under djangoapi,
+add route for myapi
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', myapi.site.urls), 
+]
+
+in myapi > models.py
+create fields
+from django.db import models
+
+# Create your models here.
+class approvals(models.Model):
+
+    GENDER_CHOICES = (
+		('Male', 'Male'),
+		('Female', 'Female')
+	)
+	MARRIED_CHOICES = (
+		('Yes', 'Yes'),
+		('No', 'No')
+	)
+	GRADUATED_CHOICES = (
+		('Graduate', 'Graduated'),
+		('Not_Graduate', 'Not_Graduate')
+	)
+	SELFEMPLOYED_CHOICES = (
+		('Yes', 'Yes'),
+		('No', 'No')
+	)
+	PROPERTY_CHOICES = (
+		('Rural', 'Rural'),
+		('Semiurban', 'Semiurban'),
+		('Urban', 'Urban')
+	)
+	firstname=models.CharField(max_length=15)
+	lastname=models.CharField(max_length=15)
+	dependants=models.IntegerField(default=0)
+	applicantincome=models.IntegerField(default=0)
+	coapplicatincome=models.IntegerField(default=0)
+	loanamt=models.IntegerField(default=0)
+	loanterm=models.IntegerField(default=0)
+	credithistory=models.IntegerField(default=0)
+	gender=models.CharField(max_length=15, choices=GENDER_CHOICES)
+	married=models.CharField(max_length=15, choices=MARRIED_CHOICES)
+	graduatededucation=models.CharField(max_length=15, choices=GRADUATED_CHOICES)
+	selfemployed=models.CharField(max_length=15, choices=SELFEMPLOYED_CHOICES)
+	area=models.CharField(max_length=15, choices=PROPERTY_CHOICES)
+    
+    def __str__(self):
+    return '{}, {}'.format(self.lastname, self.firstname)
+	
+register the model in myapi > admin.py
+from django.contrib import admin
+from . models import approvals
+
+# Register your models here.
+admin.site.register(approvals)
+
+add serializer.py in myapi
+from rest_framework import serializers
+from . models import approvals
+
+class approvalsSerializers(serializers.ModelSerializer):
+	class Meta:
+		model=approvals
+		fields='__all__'
+		
+create view for prediction
+
+update urls in myapi
+
+update urls in djangoapi
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('myapi.urls')), 
+]
+
+#if multiple applications add prefix
+
+create forms 
+myapi/templates/myform
+create forms.py from django form different than model fields
+
+update views.py for seperating intake from prediction (add cxcontact)
+add ohevalue
+
+update urls.py in myapi
+urlpatterns = [
+    path('api/', include(router.urls)),
+    path('status/', views.approvereject),
+    path('form/', views.cxcontact, name='cxform'),
+] 
+
+djangoapi/settings.py
+crispy forms
+
+streamlit
+streamlit on heroku
+links
+
+
+fastapi vs django
+links
+
+
+model serving for custom functions
+pythonudf
+sparkudf
+links
+
+
+django datascience project
+
+
+
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>pip install scikit-learn
+Collecting scikit-learn
+  WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/scikit-learn/
+  Downloading https://files.pythonhosted.org/packages/d1/bd/af72ee39f8b9ac55c52fbf463b1c2b0a849e29bbbfa0f3447db7178b0504/scikit_learn-1.0-cp38-cp38-win_amd64.whl (7.2MB)
+     |████████████████████████████████| 7.2MB 3.3MB/s
+Collecting scipy>=1.1.0 (from scikit-learn)
+  Downloading https://files.pythonhosted.org/packages/90/39/b9452a3879b0baea4041d6b344bfad37aacfaadaafe945b47bb475ab8c7a/scipy-1.7.1-cp38-cp38-win_amd64.whl (33.7MB)
+     |████████████████████████████████| 33.8MB 6.4MB/s
+Collecting threadpoolctl>=2.0.0 (from scikit-learn)
+  Downloading https://files.pythonhosted.org/packages/c6/e8/c216b9b60cbba4642d3ca1bae7a53daa0c24426f662e0e3ce3dc7f6caeaa/threadpoolctl-2.2.0-py3-none-any.whl
+Collecting joblib>=0.11 (from scikit-learn)
+  Downloading https://files.pythonhosted.org/packages/55/85/70c6602b078bd9e6f3da4f467047e906525c355a4dacd4f71b97a35d9897/joblib-1.0.1-py3-none-any.whl (303kB)
+     |████████████████████████████████| 307kB 6.8MB/s
+Collecting numpy>=1.14.6 (from scikit-learn)
+  Using cached https://files.pythonhosted.org/packages/db/67/aa68c92b976b42403c9742b823bb74a007ed8f332764158f68998d260a01/numpy-1.21.2-cp38-cp38-win_amd64.whl
+Installing collected packages: numpy, scipy, threadpoolctl, joblib, scikit-learn
+Successfully installed joblib-1.0.1 numpy-1.21.2 scikit-learn-1.0 scipy-1.7.1 threadpoolctl-2.2.0
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>pip install matplotlib
+Collecting matplotlib
+  WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/matplotlib/
+  WARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/matplotlib/
+  WARNING: Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/matplotlib/
+  WARNING: Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/matplotlib/
+  Using cached https://files.pythonhosted.org/packages/0f/84/2b2d869816512ddfef46a8c130782ca770009d920e295e3805bd6174014a/matplotlib-3.4.3-cp38-cp38-win_amd64.whl
+Requirement already satisfied: numpy>=1.16 in c:\users\ashish\documents\data_science\djangoapp\djangoapp\lib\site-packages (from matplotlib) (1.21.2)
+Collecting pillow>=6.2.0 (from matplotlib)
+  Using cached https://files.pythonhosted.org/packages/fd/fc/fc1c5fc13d29360a4f8398d4d334030cea18d44f78c73efc08a3e808aa5f/Pillow-8.3.2-cp38-cp38-win_amd64.whl
+Collecting cycler>=0.10 (from matplotlib)
+  Using cached https://files.pythonhosted.org/packages/f7/d2/e07d3ebb2bd7af696440ce7e754c59dd546ffe1bbe732c8ab68b9c834e61/cycler-0.10.0-py2.py3-none-any.whl
+Collecting kiwisolver>=1.0.1 (from matplotlib)
+  Using cached https://files.pythonhosted.org/packages/30/17/5474c0fcd670f1bb2204218bf3f444e6012a97f774336022612320ab4ea4/kiwisolver-1.3.2-cp38-cp38-win_amd64.whl
+Collecting python-dateutil>=2.7 (from matplotlib)
+  Using cached https://files.pythonhosted.org/packages/36/7a/87837f39d0296e723bb9b62bbb257d0355c7f6128853c78955f57342a56d/python_dateutil-2.8.2-py2.py3-none-any.whl
+Collecting pyparsing>=2.2.1 (from matplotlib)
+  Using cached https://files.pythonhosted.org/packages/8a/bb/488841f56197b13700afd5658fc279a2025a39e22449b7cf29864669b15d/pyparsing-2.4.7-py2.py3-none-any.whl
+Collecting six (from cycler>=0.10->matplotlib)
+  Using cached https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl
+Installing collected packages: pillow, six, cycler, kiwisolver, python-dateutil, pyparsing, matplotlib
+Successfully installed cycler-0.10.0 kiwisolver-1.3.2 matplotlib-3.4.3 pillow-8.3.2 pyparsing-2.4.7 python-dateutil-2.8.2 six-1.16.0
+WARNING: You are using pip version 19.2.3, however version 21.2.4 is available.
+You should consider upgrading via the 'python -m pip install --upgrade pip' command.
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>pip install --ignore-installed --upgrade tensorflow-gpu
+Collecting tensorflow-gpu
+  WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/tensorflow-gpu/
+  WARNING: Retrying (Retry(total=3, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ProtocolError('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))': /simple/tensorflow-gpu/
+  Downloading https://files.pythonhosted.org/packages/2f/ad/c16cfadfc4c80e13a8679d556aa849fc34dcd2f2ba078d224a68a0809743/tensorflow_gpu-2.6.0-cp38-cp38-win_amd64.whl (423.3MB)
+     |████████████████████████████████| 423.3MB 6.4MB/s
+Collecting termcolor~=1.1.0 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/8a/48/a76be51647d0eb9f10e2a4511bf3ffb8cc1e6b14e9e4fab46173aa79f981/termcolor-1.1.0.tar.gz
+Collecting astunparse~=1.6.3 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/2b/03/13dde6512ad7b4557eb792fbcf0c653af6076b81e5941d36ec61f7ce6028/astunparse-1.6.3-py2.py3-none-any.whl
+Collecting gast==0.4.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/b6/48/583c032b79ae5b3daa02225a675aeb673e58d2cb698e78510feceb11958c/gast-0.4.0-py3-none-any.whl
+Collecting wrapt~=1.12.1 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/82/f7/e43cefbe88c5fd371f4cf0cf5eb3feccd07515af9fd6cf7dbf1d1793a797/wrapt-1.12.1.tar.gz
+Collecting numpy~=1.19.2 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/5a/13/25a83b9aae5fe9460b1997f5ba48814783d7f460bbbd8cadd96e1481ddf0/numpy-1.19.5-cp38-cp38-win_amd64.whl (13.3MB)
+     |████████████████████████████████| 13.3MB ...
+Collecting protobuf>=3.9.2 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/eb/8e/0aa1e93ce16d42a1d8aee5ae1c918e5612a1a11aa2684162d374fac71048/protobuf-3.18.0-cp38-cp38-win_amd64.whl (912kB)
+     |████████████████████████████████| 921kB 6.4MB/s
+Collecting google-pasta~=0.2 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/a3/de/c648ef6835192e6e2cc03f40b19eeda4382c49b5bafb43d88b931c4c74ac/google_pasta-0.2.0-py3-none-any.whl
+Collecting wheel~=0.35 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/04/80/cad93b40262f5d09f6de82adbee452fd43cdff60830b56a74c5930f7e277/wheel-0.37.0-py2.py3-none-any.whl
+Collecting clang~=5.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/32/12/e17c1220f8ca587add2e076ebb28b6c4551fcc730e3c69a5f49679ad28e9/clang-5.0.tar.gz
+Collecting opt-einsum~=3.3.0 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/bc/19/404708a7e54ad2798907210462fd950c3442ea51acc8790f3da48d2bee8b/opt_einsum-3.3.0-py3-none-any.whl
+Collecting six~=1.15.0 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/ee/ff/48bde5c0f013094d729fe4b0316ba2a24774b3ff1c52d924a8a4cb04078a/six-1.15.0-py2.py3-none-any.whl
+Collecting grpcio<2.0,>=1.37.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/6f/12/2d9b6c7c800135fc92e7042822a9a0ceebbd5a6f5cea8489c76721e1d822/grpcio-1.40.0-cp38-cp38-win_amd64.whl (3.2MB)
+     |████████████████████████████████| 3.2MB ...
+Collecting h5py~=3.1.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/93/3a/f94b993a8db766983b972f5905cb3f0e655bcb6620088fa2b9141e74ff36/h5py-3.1.0-cp38-cp38-win_amd64.whl (2.7MB)
+     |████████████████████████████████| 2.7MB ...
+Collecting absl-py~=0.10 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/6f/30/9447db7fb0ff3e56a3462cb1c005e44c8291bfcb58a0150e098d1f6d0ddd/absl_py-0.14.0-py3-none-any.whl (131kB)
+     |████████████████████████████████| 133kB ...
+Collecting tensorboard~=2.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/a0/20/a59a30c32330e4ff704faa4273b251db042d495e0c367bcdf045c6fe26e9/tensorboard-2.6.0-py3-none-any.whl (5.6MB)
+     |████████████████████████████████| 5.6MB ...
+Collecting keras-preprocessing~=1.1.2 (from tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/79/4c/7c3275a01e12ef9368a892926ab932b33bb13d55794881e3573482b378a7/Keras_Preprocessing-1.1.2-py2.py3-none-any.whl
+Collecting flatbuffers~=1.12.0 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/eb/26/712e578c5f14e26ae3314c39a1bdc4eb2ec2f4ddc89b708cf8e0a0d20423/flatbuffers-1.12-py2.py3-none-any.whl
+Collecting tensorflow-estimator~=2.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/c8/54/1b2f1e22a2670546cc02e4df1b80425edaee02133173bb91aa0f6d3d0293/tensorflow_estimator-2.6.0-py2.py3-none-any.whl (462kB)
+     |████████████████████████████████| 471kB ...
+Collecting keras~=2.6 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/5a/38/04d9b7fb53acdf861df2c4505fa96b06c779817a511e94b8882d284ba360/keras-2.6.0-py2.py3-none-any.whl (1.3MB)
+     |████████████████████████████████| 1.3MB ...
+Collecting typing-extensions~=3.7.4 (from tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/60/7a/e881b5abb54db0e6e671ab088d079c57ce54e8a01a3ca443f561ccadb37e/typing_extensions-3.7.4.3-py3-none-any.whl
+Collecting setuptools>=41.0.0 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/4e/2e/f8e006dbaaa46ed1e762c287585b92476deb8d3ccb79b720ed3b86bc6113/setuptools-58.1.0-py3-none-any.whl (816kB)
+     |████████████████████████████████| 819kB ...
+Collecting markdown>=2.6.8 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/6e/33/1ae0f71395e618d6140fbbc9587cc3156591f748226075e0f7d6f9176522/Markdown-3.3.4-py3-none-any.whl (97kB)
+     |████████████████████████████████| 102kB ...
+Collecting google-auth-oauthlib<0.5,>=0.4.1 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/b1/0e/0636cc1448a7abc444fb1b3a63655e294e0d2d49092dc3de05241be6d43c/google_auth_oauthlib-0.4.6-py2.py3-none-any.whl
+Collecting tensorboard-plugin-wit>=1.6.0 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/1a/c1/499e600ba0c618b451cd9c425ae1c177249940a2086316552fee7d86c954/tensorboard_plugin_wit-1.8.0-py3-none-any.whl (781kB)
+     |████████████████████████████████| 788kB ...
+Collecting google-auth<2,>=1.6.3 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/fb/7a/1b3eb54caee1b8c73c2c3645f78a382eca4805a301a30c64a078e736e446/google_auth-1.35.0-py2.py3-none-any.whl (152kB)
+     |████████████████████████████████| 153kB ...
+Collecting werkzeug>=0.11.15 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/bd/24/11c3ea5a7e866bf2d97f0501d0b4b1c9bbeade102bb4b588f0d2919a5212/Werkzeug-2.0.1-py3-none-any.whl (288kB)
+     |████████████████████████████████| 296kB ...
+Collecting tensorboard-data-server<0.7.0,>=0.6.0 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/74/69/5747a957f95e2e1d252ca41476ae40ce79d70d38151d2e494feb7722860c/tensorboard_data_server-0.6.1-py3-none-any.whl
+Collecting requests<3,>=2.21.0 (from tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/92/96/144f70b972a9c0eabbd4391ef93ccd49d0f2747f4f6a2a2738e99e5adc65/requests-2.26.0-py2.py3-none-any.whl (62kB)
+     |████████████████████████████████| 71kB ...
+Collecting requests-oauthlib>=0.7.0 (from google-auth-oauthlib<0.5,>=0.4.1->tensorboard~=2.6->tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/a3/12/b92740d845ab62ea4edf04d2f4164d82532b5a0b03836d4d4e71c6f3d379/requests_oauthlib-1.3.0-py2.py3-none-any.whl
+Collecting pyasn1-modules>=0.2.1 (from google-auth<2,>=1.6.3->tensorboard~=2.6->tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/95/de/214830a981892a3e286c3794f41ae67a4495df1108c3da8a9f62159b9a9d/pyasn1_modules-0.2.8-py2.py3-none-any.whl
+Collecting rsa<5,>=3.1.4; python_version >= "3.6" (from google-auth<2,>=1.6.3->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/e9/93/0c0f002031f18b53af7a6166103c02b9c0667be528944137cc954ec921b3/rsa-4.7.2-py3-none-any.whl
+Collecting cachetools<5.0,>=2.0.0 (from google-auth<2,>=1.6.3->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/bf/28/c4f5796c67ad06bb91d98d543a5e01805c1ff065e08871f78e52d2a331ad/cachetools-4.2.2-py3-none-any.whl
+Collecting charset-normalizer~=2.0.0; python_version >= "3" (from requests<3,>=2.21.0->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/3f/65/69e6754102dcd018a0f29e4db673372eb323ee504431125ab6c9109cb21c/charset_normalizer-2.0.6-py3-none-any.whl
+Collecting urllib3<1.27,>=1.21.1 (from requests<3,>=2.21.0->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/af/f4/524415c0744552cce7d8bf3669af78e8a069514405ea4fcbd0cc44733744/urllib3-1.26.7-py2.py3-none-any.whl (138kB)
+     |████████████████████████████████| 143kB ...
+Collecting certifi>=2017.4.17 (from requests<3,>=2.21.0->tensorboard~=2.6->tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/05/1b/0a0dece0e8aa492a6ec9e4ad2fe366b511558cdc73fd3abc82ba7348e875/certifi-2021.5.30-py2.py3-none-any.whl
+Collecting idna<4,>=2.5; python_version >= "3" (from requests<3,>=2.21.0->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/d7/77/ff688d1504cdc4db2a938e2b7b9adee5dd52e34efbd2431051efc9984de9/idna-3.2-py3-none-any.whl (59kB)
+     |████████████████████████████████| 61kB ...
+Collecting oauthlib>=3.0.0 (from requests-oauthlib>=0.7.0->google-auth-oauthlib<0.5,>=0.4.1->tensorboard~=2.6->tensorflow-gpu)
+  Downloading https://files.pythonhosted.org/packages/e8/5d/9dd1c29e5a786525f6342f6c1d812ed2e37edc653ad297048c1668988053/oauthlib-3.1.1-py2.py3-none-any.whl (146kB)
+     |████████████████████████████████| 153kB ...
+Collecting pyasn1<0.5.0,>=0.4.6 (from pyasn1-modules>=0.2.1->google-auth<2,>=1.6.3->tensorboard~=2.6->tensorflow-gpu)
+  Using cached https://files.pythonhosted.org/packages/62/1e/a94a8d635fa3ce4cfc7f506003548d0a2447ae76fd5ca53932970fe3053f/pyasn1-0.4.8-py2.py3-none-any.whl
+Installing collected packages: termcolor, six, wheel, astunparse, gast, wrapt, numpy, protobuf, google-pasta, clang, opt-einsum, grpcio, h5py, absl-py, setuptools, markdown, oauthlib, charset-normalizer, urllib3, certifi, idna, requests, requests-oauthlib, pyasn1, pyasn1-modules, rsa, cachetools, google-auth, google-auth-oauthlib, tensorboard-plugin-wit, werkzeug, tensorboard-data-server, tensorboard, keras-preprocessing, flatbuffers, tensorflow-estimator, keras, typing-extensions, tensorflow-gpu
+  Running setup.py install for termcolor ... done
+  Running setup.py install for wrapt ... done
+  Running setup.py install for clang ... done
+Successfully installed absl-py-0.14.0 astunparse-1.6.3 cachetools-4.2.2 certifi-2021.5.30 charset-normalizer-2.0.6 clang-5.0 flatbuffers-1.12 gast-0.4.0 google-auth-1.35.0 google-auth-oauthlib-0.4.6 google-pasta-0.2.0 grpcio-1.40.0 h5py-3.1.0 idna-3.2 keras-2.6.0 keras-preprocessing-1.1.2 markdown-3.3.4 numpy-1.21.2 oauthlib-3.1.1 opt-einsum-3.3.0 protobuf-3.18.0 pyasn1-0.4.8 pyasn1-modules-0.2.8 requests-2.26.0 requests-oauthlib-1.3.0 rsa-4.7.2 setuptools-58.1.0 six-1.16.0 tensorboard-2.6.0 tensorboard-data-server-0.6.1 tensorboard-plugin-wit-1.8.0 tensorflow-estimator-2.6.0 tensorflow-gpu-2.6.0 termcolor-1.1.0 typing-extensions-3.7.4.3 urllib3-1.26.7 werkzeug-2.0.1 wheel-0.37.0 wrapt-1.12.1
+WARNING: You are using pip version 19.2.3, however version 21.2.4 is available.
+You should consider upgrading via the 'python -m pip install --upgrade pip' command.
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>python
+Python 3.8.3 (default, Jul  2 2020, 17:30:36) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from tensorflow.python.client import device_lib
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\_distributor_init.py:30: UserWarning: loaded more than 1 DLL from .libs:
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\.libs\libopenblas.WCDJNK7YVMPZQ2ME2ZZHJJRJ3JIKNDB7.gfortran-win_amd64.dll
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\.libs\libopenblas.XWYDX2IKJW2NMTWSFYNGFUWKQU3LYTCZ.gfortran-win_amd64.dll
+  warnings.warn("loaded more than 1 DLL from .libs:"
+2021-09-26 12:19:46.056276: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found
+2021-09-26 12:19:46.056451: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+>>> print(device_lib.list_local_devices())
+2021-09-26 12:19:59.758431: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX AVX2
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-09-26 12:19:59.789997: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cudart64_110.dll'; dlerror: cudart64_110.dll not found
+2021-09-26 12:19:59.790956: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cublas64_11.dll'; dlerror: cublas64_11.dll not found
+2021-09-26 12:19:59.791809: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cublasLt64_11.dll'; dlerror: cublasLt64_11.dll not found
+2021-09-26 12:20:00.144845: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cusolver64_11.dll'; dlerror: cusolver64_11.dll not found
+2021-09-26 12:20:00.145761: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cusparse64_11.dll'; dlerror: cusparse64_11.dll not found
+2021-09-26 12:20:00.146605: W tensorflow/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'cudnn64_8.dll'; dlerror: cudnn64_8.dll not found
+2021-09-26 12:20:00.146753: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1835] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+[name: "/device:CPU:0"
+device_type: "CPU"
+memory_limit: 268435456
+locality {
+}
+incarnation: 8025802540967053744
+]
+>>> exit()
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>pip uninstall tensorflow-gpu
+Uninstalling tensorflow-gpu-2.6.0:
+  Would remove:
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\lib\site-packages\tensorflow\*
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\lib\site-packages\tensorflow_gpu-2.6.0-cp38-cp38-win_amd64.whl
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\lib\site-packages\tensorflow_gpu-2.6.0.dist-info\*
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\estimator_ckpt_converter.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\import_pb_to_tensorboard.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\saved_model_cli.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\tensorboard.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\tf_upgrade_v2.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\tflite_convert.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\toco.exe
+    c:\users\ashish\documents\data_science\djangoapp\djangoapp\scripts\toco_from_protos.exe
+Proceed (y/n)? y
+  Successfully uninstalled tensorflow-gpu-2.6.0
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>pip install --ignore-installed --upgrade tensorflow-gpu==2.3.0
+Collecting tensorflow-gpu==2.3.0
+  Using cached https://files.pythonhosted.org/packages/f2/25/890c86f787e8b6bf6d250c116b83c5554be48b3fe6a7c9b1f7abc1b33e2d/tensorflow_gpu-2.3.0-cp38-cp38-win_amd64.whl
+Collecting astunparse==1.6.3 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/2b/03/13dde6512ad7b4557eb792fbcf0c653af6076b81e5941d36ec61f7ce6028/astunparse-1.6.3-py2.py3-none-any.whl
+Collecting tensorflow-gpu-estimator<2.4.0,>=2.3.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/9d/6f/87e922b1dbfa9aa2e79bf150bf05d567eaa4f83bfd329c04834b26b0725e/tensorflow_gpu_estimator-2.3.0-py2.py3-none-any.whl
+Collecting six>=1.12.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl
+Collecting keras-preprocessing<1.2,>=1.1.1 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/79/4c/7c3275a01e12ef9368a892926ab932b33bb13d55794881e3573482b378a7/Keras_Preprocessing-1.1.2-py2.py3-none-any.whl
+Collecting gast==0.3.3 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/d6/84/759f5dd23fec8ba71952d97bcc7e2c9d7d63bdc582421f3cd4be845f0c98/gast-0.3.3-py2.py3-none-any.whl
+Collecting opt-einsum>=2.3.2 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/bc/19/404708a7e54ad2798907210462fd950c3442ea51acc8790f3da48d2bee8b/opt_einsum-3.3.0-py3-none-any.whl
+Collecting termcolor>=1.1.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/8a/48/a76be51647d0eb9f10e2a4511bf3ffb8cc1e6b14e9e4fab46173aa79f981/termcolor-1.1.0.tar.gz
+Collecting wrapt>=1.11.1 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/82/f7/e43cefbe88c5fd371f4cf0cf5eb3feccd07515af9fd6cf7dbf1d1793a797/wrapt-1.12.1.tar.gz
+Collecting scipy==1.4.1 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/f8/b9/98a75846fdda3756ce75705b518dde4c599ba419d11415ce3fe1ebc4a885/scipy-1.4.1-cp38-cp38-win_amd64.whl
+Collecting google-pasta>=0.1.8 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/a3/de/c648ef6835192e6e2cc03f40b19eeda4382c49b5bafb43d88b931c4c74ac/google_pasta-0.2.0-py3-none-any.whl
+Collecting wheel>=0.26 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/04/80/cad93b40262f5d09f6de82adbee452fd43cdff60830b56a74c5930f7e277/wheel-0.37.0-py2.py3-none-any.whl
+Collecting grpcio>=1.8.6 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/6f/12/2d9b6c7c800135fc92e7042822a9a0ceebbd5a6f5cea8489c76721e1d822/grpcio-1.40.0-cp38-cp38-win_amd64.whl
+Collecting absl-py>=0.7.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/6f/30/9447db7fb0ff3e56a3462cb1c005e44c8291bfcb58a0150e098d1f6d0ddd/absl_py-0.14.0-py3-none-any.whl
+Collecting numpy<1.19.0,>=1.16.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/22/cb/21a148329591931d8764e7ef49cb19586dd5b5e002a184988cb5ec1ccba9/numpy-1.18.5-cp38-cp38-win_amd64.whl
+Collecting protobuf>=3.9.2 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/eb/8e/0aa1e93ce16d42a1d8aee5ae1c918e5612a1a11aa2684162d374fac71048/protobuf-3.18.0-cp38-cp38-win_amd64.whl
+Collecting tensorboard<3,>=2.3.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/a0/20/a59a30c32330e4ff704faa4273b251db042d495e0c367bcdf045c6fe26e9/tensorboard-2.6.0-py3-none-any.whl
+Collecting h5py<2.11.0,>=2.10.0 (from tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/1e/63/0d32c1803c08518dd03e02f3cfe302335624f511155be723bcc7329fed4e/h5py-2.10.0-cp38-cp38-win_amd64.whl
+Collecting tensorboard-plugin-wit>=1.6.0 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/1a/c1/499e600ba0c618b451cd9c425ae1c177249940a2086316552fee7d86c954/tensorboard_plugin_wit-1.8.0-py3-none-any.whl
+Collecting google-auth-oauthlib<0.5,>=0.4.1 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/b1/0e/0636cc1448a7abc444fb1b3a63655e294e0d2d49092dc3de05241be6d43c/google_auth_oauthlib-0.4.6-py2.py3-none-any.whl
+Collecting requests<3,>=2.21.0 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/92/96/144f70b972a9c0eabbd4391ef93ccd49d0f2747f4f6a2a2738e99e5adc65/requests-2.26.0-py2.py3-none-any.whl
+Collecting markdown>=2.6.8 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/6e/33/1ae0f71395e618d6140fbbc9587cc3156591f748226075e0f7d6f9176522/Markdown-3.3.4-py3-none-any.whl
+Collecting tensorboard-data-server<0.7.0,>=0.6.0 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/74/69/5747a957f95e2e1d252ca41476ae40ce79d70d38151d2e494feb7722860c/tensorboard_data_server-0.6.1-py3-none-any.whl
+Collecting werkzeug>=0.11.15 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/bd/24/11c3ea5a7e866bf2d97f0501d0b4b1c9bbeade102bb4b588f0d2919a5212/Werkzeug-2.0.1-py3-none-any.whl
+Collecting google-auth<2,>=1.6.3 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/fb/7a/1b3eb54caee1b8c73c2c3645f78a382eca4805a301a30c64a078e736e446/google_auth-1.35.0-py2.py3-none-any.whl
+Collecting setuptools>=41.0.0 (from tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/4e/2e/f8e006dbaaa46ed1e762c287585b92476deb8d3ccb79b720ed3b86bc6113/setuptools-58.1.0-py3-none-any.whl
+Collecting requests-oauthlib>=0.7.0 (from google-auth-oauthlib<0.5,>=0.4.1->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/a3/12/b92740d845ab62ea4edf04d2f4164d82532b5a0b03836d4d4e71c6f3d379/requests_oauthlib-1.3.0-py2.py3-none-any.whl
+Collecting certifi>=2017.4.17 (from requests<3,>=2.21.0->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/05/1b/0a0dece0e8aa492a6ec9e4ad2fe366b511558cdc73fd3abc82ba7348e875/certifi-2021.5.30-py2.py3-none-any.whl
+Collecting charset-normalizer~=2.0.0; python_version >= "3" (from requests<3,>=2.21.0->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/3f/65/69e6754102dcd018a0f29e4db673372eb323ee504431125ab6c9109cb21c/charset_normalizer-2.0.6-py3-none-any.whl
+Collecting urllib3<1.27,>=1.21.1 (from requests<3,>=2.21.0->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/af/f4/524415c0744552cce7d8bf3669af78e8a069514405ea4fcbd0cc44733744/urllib3-1.26.7-py2.py3-none-any.whl
+Collecting idna<4,>=2.5; python_version >= "3" (from requests<3,>=2.21.0->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/d7/77/ff688d1504cdc4db2a938e2b7b9adee5dd52e34efbd2431051efc9984de9/idna-3.2-py3-none-any.whl
+Collecting cachetools<5.0,>=2.0.0 (from google-auth<2,>=1.6.3->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/bf/28/c4f5796c67ad06bb91d98d543a5e01805c1ff065e08871f78e52d2a331ad/cachetools-4.2.2-py3-none-any.whl
+Collecting pyasn1-modules>=0.2.1 (from google-auth<2,>=1.6.3->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/95/de/214830a981892a3e286c3794f41ae67a4495df1108c3da8a9f62159b9a9d/pyasn1_modules-0.2.8-py2.py3-none-any.whl
+Collecting rsa<5,>=3.1.4; python_version >= "3.6" (from google-auth<2,>=1.6.3->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/e9/93/0c0f002031f18b53af7a6166103c02b9c0667be528944137cc954ec921b3/rsa-4.7.2-py3-none-any.whl
+Collecting oauthlib>=3.0.0 (from requests-oauthlib>=0.7.0->google-auth-oauthlib<0.5,>=0.4.1->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/e8/5d/9dd1c29e5a786525f6342f6c1d812ed2e37edc653ad297048c1668988053/oauthlib-3.1.1-py2.py3-none-any.whl
+Collecting pyasn1<0.5.0,>=0.4.6 (from pyasn1-modules>=0.2.1->google-auth<2,>=1.6.3->tensorboard<3,>=2.3.0->tensorflow-gpu==2.3.0)
+  Using cached https://files.pythonhosted.org/packages/62/1e/a94a8d635fa3ce4cfc7f506003548d0a2447ae76fd5ca53932970fe3053f/pyasn1-0.4.8-py2.py3-none-any.whl
+Building wheels for collected packages: termcolor, wrapt
+  Building wheel for termcolor (setup.py) ... done
+  Created wheel for termcolor: filename=termcolor-1.1.0-cp38-none-any.whl size=4849 sha256=c30cb0ce79d9848beb902876780edce3715b2941d9980dabe3c6f233a1e6e73d
+  Stored in directory: C:\Users\ashish\AppData\Local\pip\Cache\wheels\7c\06\54\bc84598ba1daf8f970247f550b175aaaee85f68b4b0c5ab2c6
+  Building wheel for wrapt (setup.py) ... done
+  Created wheel for wrapt: filename=wrapt-1.12.1-cp38-cp38-win_amd64.whl size=33710 sha256=8b0649b6a51a974c9fe256787681f6040b1667578d282c7a05a1c05c33fff7ed
+  Stored in directory: C:\Users\ashish\AppData\Local\pip\Cache\wheels\b1\c2\ed\d62208260edbd3fa7156545c00ef966f45f2063d0a84f8208a
+Successfully built termcolor wrapt
+Installing collected packages: wheel, six, astunparse, tensorflow-gpu-estimator, numpy, keras-preprocessing, gast, opt-einsum, termcolor, wrapt, scipy, google-pasta, grpcio, absl-py, protobuf, tensorboard-plugin-wit, oauthlib, certifi, charset-normalizer, urllib3, idna, requests, requests-oauthlib, setuptools, cachetools, pyasn1, pyasn1-modules, rsa, google-auth, google-auth-oauthlib, markdown, tensorboard-data-server, werkzeug, tensorboard, h5py, tensorflow-gpu
+Successfully installed absl-py-0.14.0 astunparse-1.6.3 cachetools-4.2.2 certifi-2021.5.30 charset-normalizer-2.0.6 gast-0.4.0 google-auth-1.35.0 google-auth-oauthlib-0.4.6 google-pasta-0.2.0 grpcio-1.40.0 h5py-3.1.0 idna-3.2 keras-preprocessing-1.1.2 markdown-3.3.4 numpy-1.21.2 oauthlib-3.1.1 opt-einsum-3.3.0 protobuf-3.18.0 pyasn1-0.4.8 pyasn1-modules-0.2.8 requests-2.26.0 requests-oauthlib-1.3.0 rsa-4.7.2 scipy-1.7.1 setuptools-58.1.0 six-1.16.0 tensorboard-2.6.0 tensorboard-data-server-0.6.1 tensorboard-plugin-wit-1.8.0 tensorflow-gpu-2.3.0 tensorflow-gpu-estimator-2.3.0 termcolor-1.1.0 urllib3-1.26.7 werkzeug-2.0.1 wheel-0.37.0 wrapt-1.12.1
+WARNING: You are using pip version 19.2.3, however version 21.2.4 is available.
+You should consider upgrading via the 'python -m pip install --upgrade pip' command.
+
+(djangoapp) C:\Users\ashish\Documents\data_science\djangoapp>python
+Python 3.8.3 (default, Jul  2 2020, 17:30:36) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from tensorflow.python.client import device_lib
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\_distributor_init.py:30: UserWarning: loaded more than 1 DLL from .libs:
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\.libs\libopenblas.PYQHXLVVQ7VESDPUVUADXEVJOBGHJPAY.gfortran-win_amd64.dll
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\.libs\libopenblas.WCDJNK7YVMPZQ2ME2ZZHJJRJ3JIKNDB7.gfortran-win_amd64.dll
+C:\Users\ashish\Documents\data_science\djangoapp\djangoapp\lib\site-packages\numpy\.libs\libopenblas.XWYDX2IKJW2NMTWSFYNGFUWKQU3LYTCZ.gfortran-win_amd64.dll
+  warnings.warn("loaded more than 1 DLL from .libs:\n%s" %
+2021-09-26 12:27:55.653718: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll
+>>> print(device_lib.list_local_devices())
+2021-09-26 12:28:12.305854: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN)to use the following CPU instructions in performance-critical operations:  AVX2
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2021-09-26 12:28:12.314486: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x1eb7c0230e0 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2021-09-26 12:28:12.314659: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2021-09-26 12:28:12.317708: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library nvcuda.dll
+2021-09-26 12:28:12.345214: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1716] Found device 0 with properties:
+pciBusID: 0000:01:00.0 name: NVIDIA GeForce RTX 2070 computeCapability: 7.5
+coreClock: 1.44GHz coreCount: 36 deviceMemorySize: 8.00GiB deviceMemoryBandwidth: 417.29GiB/s
+2021-09-26 12:28:12.345384: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudart64_101.dll
+2021-09-26 12:28:12.712305: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cublas64_10.dll
+2021-09-26 12:28:12.714983: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cufft64_10.dll
+2021-09-26 12:28:12.715868: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library curand64_10.dll
+2021-09-26 12:28:12.927580: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cusolver64_10.dll
+2021-09-26 12:28:13.103884: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cusparse64_10.dll
+2021-09-26 12:28:13.323967: I tensorflow/stream_executor/platform/default/dso_loader.cc:48] Successfully opened dynamic library cudnn64_7.dll
+2021-09-26 12:28:13.324198: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1858] Adding visible gpu devices: 0
+2021-09-26 12:28:13.782128: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1257] Device interconnect StreamExecutor with strength 1 edge matrix:
+2021-09-26 12:28:13.782289: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1263]      0
+2021-09-26 12:28:13.783151: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1276] 0:   N
+2021-09-26 12:28:13.783669: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1402] Created TensorFlow device (/device:GPU:0 with 6639 MB memory) -> physical GPU (device: 0, name: NVIDIA GeForce RTX 2070, pci bus id: 0000:01:00.0, compute capability: 7.5)
+2021-09-26 12:28:13.787428: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x1eba12881f0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2021-09-26 12:28:13.787560: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 2070, Compute Capability 7.5
+[name: "/device:CPU:0"
+device_type: "CPU"
+memory_limit: 268435456
+locality {
+}
+incarnation: 8105202547979995836
+, name: "/device:XLA_CPU:0"
+device_type: "XLA_CPU"
+memory_limit: 17179869184
+locality {
+}
+incarnation: 17438751950001646110
+physical_device_desc: "device: XLA_CPU device"
+, name: "/device:GPU:0"
+device_type: "GPU"
+memory_limit: 6961726752
+locality {
+  bus_id: 1
+  links {
+  }
+}
+incarnation: 16670095619321667586
+physical_device_desc: "device: 0, name: NVIDIA GeForce RTX 2070, pci bus id: 0000:01:00.0, compute capability: 7.5"
+, name: "/device:XLA_GPU:0"
+device_type: "XLA_GPU"
+memory_limit: 17179869184
+locality {
+}
+incarnation: 16779692232765062033
+physical_device_desc: "device: XLA_GPU device"
+]
+>>>
